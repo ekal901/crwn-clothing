@@ -1,4 +1,4 @@
-import { createContext, useState } from "react";
+import { createContext, useEffect, useState } from "react";
 
 // if the product already exists, then add quantity or add product to cart Items
 const addCartItem = (cartItems, productToAdd) => {
@@ -19,19 +19,27 @@ export const CartContext = createContext({
     isCartOpen : false,
     setIsCartOpen: () => {},
     cartItems: [],
-    addItemToCart: () => {}
+    addItemToCart: () => {},
+    cartCount: 0
 });
 
 export const CartProvider = ({children}) => {
     const [isCartOpen, setIsCartOpen] = useState(false);
     const [cartItems, setCartItems] = useState([]);
+    const [cartCount, setCartCount] = useState(0);
+
+    // calculate cartCount
+    useEffect(() => {
+        const newCartCount = cartItems.reduce((total, cartItem) => total + cartItem.quantity, 0);
+        setCartCount(newCartCount);
+    }, [cartItems])
 
     // whenever user clicks add to cart, then add product
     const addItemToCart = (productToAdd) => {
         setCartItems(addCartItem(cartItems, productToAdd));
     }
     
-    const value = { isCartOpen, setIsCartOpen, addItemToCart, cartItems };
+    const value = { isCartOpen, setIsCartOpen, addItemToCart, cartItems, cartCount };
 
     return <CartContext.Provider value={value}>{children}</CartContext.Provider>
 }
